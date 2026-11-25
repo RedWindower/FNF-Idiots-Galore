@@ -20,8 +20,8 @@ import sys.thread.Thread;
 class GameJoltAPI
 {
 	// FILL THESE IN! (see instructions above)
-	public static var GAME_ID:String = 'YOUR_GAME_ID';
-	public static var PRIVATE_KEY:String = 'YOUR_PRIVATE_KEY';
+	public static var GAME_ID:String = '1122201';
+	public static var PRIVATE_KEY:String = '7e1f981a01a9d7f84a1970573855fa8c';
 
 	// Achievement name -> GameJolt Trophy ID
 	public static var trophyMap:Map<String, Int> = [

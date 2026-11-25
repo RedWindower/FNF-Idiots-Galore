@@ -21,7 +21,7 @@ import sys.thread.Thread;
 class Updater
 {
 	// FILL THIS IN! Your GitHub repository ('owner/repo')
-	public static var GITHUB_REPO:String = 'YOUR_USER/YOUR_REPO';
+	public static var GITHUB_REPO:String = 'RedWindower/FNF-Idiots-Galore';
 	// The zip attached to every GitHub release
 	public static var ASSET_NAME:String = 'FNF-Idiots-Galore-windows.zip';
 	// Must match the tag_name of the release this build came from
@@ -31,7 +31,7 @@ class Updater
 	public static var downloadUrl:String = null;
 
 	public static function hasRepo():Bool
-		return GITHUB_REPO != 'YOUR_USER/YOUR_REPO' && GITHUB_REPO.contains('/');
+		return GITHUB_REPO != 'RedWindower/FNF-Idiots-Galore' && GITHUB_REPO.contains('/');
 
 	// callback(outdated, latestVersion) - called from a background thread!
 	public static function checkForUpdates(?callback:Bool->String->Void)
@@ -48,7 +48,7 @@ class Updater
 	{
 		try
 		{
-			var http:haxe.Http = new haxe.Http('https://api.github.com/repos/$GITHUB_REPO/releases/latest');
+			var http:haxe.Http = new haxe.Http('https://api.github.com/repos/' + GITHUB_REPO.replace('https://github.com/', '') + '/releases/latest');
 			http.setHeader('User-Agent', 'FNF-Idiots-Galore-Updater'); //GitHub API requires a User-Agent
 			http.onData = function(data:String)
 			{

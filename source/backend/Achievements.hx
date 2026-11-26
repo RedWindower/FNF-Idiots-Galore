@@ -46,6 +46,7 @@ class Achievements {
 		createAchievement('ragebait',                {name: "LEAVE ME ALONE!", description: "Beat Ragebait."});
 		createAchievement('chromtest',                {name: "Congrats i guess..?", description: "Beat Chromtest."});
 		createAchievement('404',                {name: "4 0 4", description: "Beat ERROR_404."});
+        createAchievement('thanos',                {name: "Destiny Still Arrives.", description: "Beat Scratch It."});
         //dont delete this thing below
         _originalLength = _sortID + 1;
     }

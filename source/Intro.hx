@@ -16,7 +16,7 @@ class Intro extends MusicBeatState
 		super.create();
 
 		video = new MP4Handler();
-		video.playMP4(Paths.video("olympic"), new TitleState());
+		video.playMP4(Paths.video("wtf"), new TitleState());
 	}
 
 	override function update(elapsed:Float)

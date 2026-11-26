@@ -7,16 +7,16 @@ import haxe.io.Path;
 import haxe.zip.Reader;
 
 #if sys
+import sys.thread.Thread;
 import sys.FileSystem;
 import sys.io.File;
-import sys.thread.Thread;
 #end
 
 class Updater
 {
     public static var GITHUB_REPO:String = 'RedWindower/FNF-Idiots-Galore';
     public static var ASSET_NAME:String = 'FNF-Idiots-Galore-windows.zip';
-    public static var CURRENT_VERSION:String = '0.0.0';
+    public static var CURRENT_VERSION:String = '0.0.1';
 
     public static var latestVersion:String = '';
     public static var downloadUrl:String = null;
@@ -26,8 +26,6 @@ class Updater
         return GITHUB_REPO.length > 0 && GITHUB_REPO.contains('/');
     }
 
-    // Checks GitHub for the latest release.
-    // callback(outdated, latestVersion)
     public static function checkForUpdates(?callback:Bool->String->Void)
     {
         if (!hasRepo())
@@ -112,7 +110,6 @@ class Updater
         }
     }
 
-    // Downloads and installs the latest release.
     public static function downloadAndInstall(
         onProgress:Float->Void,
         onStatus:String->Void,
@@ -149,9 +146,7 @@ class Updater
             try
             {
                 onStatus('Preparing update...');
-
                 installUpdate(bytes);
-
                 onStatus('Update prepared! Restarting...');
             }
             catch (e:Dynamic)
@@ -166,7 +161,6 @@ class Updater
 
     #if sys
 
-    // Creates directories recursively.
     static function ensureDirectory(path:String)
     {
         if (path == null || path.length == 0 || FileSystem.exists(path))
@@ -181,7 +175,6 @@ class Updater
             FileSystem.createDirectory(path);
     }
 
-    // Prevents ZIP entries from escaping the game directory.
     static function safeZipPath(name:String):String
     {
         name = name.replace('\\', '/');
@@ -200,7 +193,9 @@ class Updater
 
     static function installUpdate(bytes:lime.utils.Bytes)
     {
-        var zipBytes = haxe.io.Bytes.ofData(bytes);
+        // Convert Lime Bytes into Haxe Bytes.
+        var zipBytes:haxe.io.Bytes = haxe.io.Bytes.ofData(bytes.getData());
+
         var entries = Reader.readZip(new BytesInput(zipBytes));
 
         if (entries == null || entries.length < 1)
@@ -212,9 +207,9 @@ class Updater
             baseDir = Sys.getCwd();
 
         var rootDir:String = null;
-        var hasCommonRoot = true;
+        var hasCommonRoot:Bool = true;
 
-        // Detect whether the ZIP has a single enclosing folder.
+        // Detect a single enclosing folder.
         for (entry in entries)
         {
             var name = safeZipPath(entry.fileName);
@@ -250,7 +245,7 @@ class Updater
 
         ensureDirectory(tempDir);
 
-        // Extract the update.
+        // Extract update files.
         for (entry in entries)
         {
             var name = safeZipPath(entry.fileName);
@@ -275,13 +270,11 @@ class Updater
             File.saveBytes(path, Reader.unzip(entry));
         }
 
-        // Find the running executable.
         var exeName = Path.withoutDirectory(Sys.programPath());
 
         if (exeName == null || exeName.length == 0)
             throw 'Could not determine game executable name!';
 
-        // Create an installer that runs after the game closes.
         var batPath = Path.join([baseDir, 'update.bat']);
 
         var bat = '@echo off\r\n'
@@ -303,14 +296,13 @@ class Updater
             + 'del "%~f0"\r\n'
             + 'exit /b\r\n'
             + ':ERROR\r\n'
-            + 'echo Update failed! Your downloaded files are still in update_temp.\r\n'
+            + 'echo Update failed! Files remain in update_temp.\r\n'
             + 'pause\r\n';
 
         File.saveContent(batPath, bat);
 
         trace('Updater: Launching automatic installer...');
 
-        // Launch the installer in a separate Windows process.
         new sys.io.Process('cmd', [
             '/c',
             'start',
@@ -319,7 +311,6 @@ class Updater
             'update.bat'
         ]);
 
-        // Close the game so its files can be replaced.
         Sys.exit(0);
     }
 

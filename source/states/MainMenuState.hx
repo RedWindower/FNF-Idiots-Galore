@@ -39,18 +39,15 @@ class MainMenuState extends MusicBeatState
         #if MODS_ALLOWED
         Mods.pushGlobalMods();
         #end
-
         Mods.loadTopMod();
         #if DISCORD_ALLOWED
         // Updating Discord Rich Presence
         DiscordClient.changePresence("In the Menus", null);
         #end
-
         transIn = FlxTransitionableState.defaultTransIn;
         transOut = FlxTransitionableState.defaultTransOut;
         persistentUpdate = persistentDraw = true;
         backend.GameJoltAPI.init();
-
         var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('menuBG'));
         bg.antialiasing = ClientPrefs.data.antialiasing;
         bg.scrollFactor.set(1, 1);
@@ -58,7 +55,6 @@ class MainMenuState extends MusicBeatState
         bg.updateHitbox();
         bg.screenCenter();
         add(bg);
-        
         camFollow = new FlxObject(FlxG.width / 2, FlxG.height / 2, 1, 1);
         add(camFollow);
         magenta = new FlxSprite(-80).loadGraphic(Paths.image('menuDesat'));
@@ -105,7 +101,7 @@ class MainMenuState extends MusicBeatState
         dropBar.updateHitbox();
         dropGroup.add(dropBar);
         var tabH:Float = 38;
-        var slotX:Array<Float> = [dropBar.width \ 1 / 6, dropBar.width \ 3 / 6, dropBar.width * 5 / 6];
+        var slotX:Array<Float> = [dropBar.width * 1 / 6, dropBar.width * 3 / 6, dropBar.width * 5 / 6];
         for (i in 0...dropOptions.length)
         {
             var entry:FlxSprite;

@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TextureAtlas imagePath="ost.png">
+<SubTexture name="ostanim0000" x="288" y="155" width="211" height="111" frameX="0" frameY="0" frameWidth="211" frameHeight="111" />
+<SubTexture name="ostanim0001" x="288" y="155" width="211" height="111" frameX="0" frameY="0" frameWidth="211" frameHeight="111" />
+<SubTexture name="ostanim0002" x="288" y="155" width="211" height="111" frameX="0" frameY="0" frameWidth="211" frameHeight="111" />
+<SubTexture name="ostanim0003" x="0" y="310" width="211" height="111" frameX="0" frameY="0" frameWidth="211" frameHeight="111" />
+<SubTexture name="ostanim0004" x="0" y="310" width="211" height="111" frameX="0" frameY="0" frameWidth="211" frameHeight="111" />
+<SubTexture name="ostanim0005" x="0" y="310" width="211" height="111" frameX="0" frameY="0" frameWidth="211" frameHeight="111" />
+<SubTexture name="ostanim0006" x="211" y="310" width="211" height="111" frameX="0" frameY="0" frameWidth="211" frameHeight="111" />
+<SubTexture name="ostanim0007" x="211" y="310" width="211" height="111" frameX="0" frameY="0" frameWidth="211" frameHeight="111" />
+<SubTexture name="ostanim0008" x="211" y="310" width="211" height="111" frameX="0" frameY="0" frameWidth="211" frameHeight="111" />
+<SubTexture name="ostselect0000" x="0" y="0" width="288" height="155" frameX="-1" frameY="0" frameWidth="289" frameHeight="155" />
+<SubTexture name="ostselect0001" x="288" y="0" width="288" height="155" frameX="-1" frameY="0" frameWidth="289" frameHeight="155" />
+<SubTexture name="ostselect0002" x="0" y="155" width="288" height="155" frameX="-1" frameY="0" frameWidth="289" frameHeight="155" />
+</TextureAtlas>

@@ -25,7 +25,7 @@ class Updater
 	// The zip attached to every GitHub release
 	public static var ASSET_NAME:String = 'FNF-Idiots-Galore-windows.zip';
 	// Must match the tag_name of the release this build came from
-	public static var CURRENT_VERSION:String = 'WIP';
+	public static var CURRENT_VERSION:String = '0.0.1';
 
 	public static var latestVersion:String = '';
 	public static var downloadUrl:String = null;

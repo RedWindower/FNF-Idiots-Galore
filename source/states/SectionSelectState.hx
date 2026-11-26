@@ -10,6 +10,8 @@ class SectionSelectState extends MusicBeatState
 
 	var toFreeplay:Bool = false;
 	var sections:Array<String> = [];
+	//Sections that always show up, even before any week is assigned to them
+	var extraSections:Array<String> = ['SamelThing'];
 
 	var portrait:FlxSprite;
 	var nameTxt:FlxText;
@@ -38,6 +40,9 @@ class SectionSelectState extends MusicBeatState
 				sections.push(week.section);
 		}
 		if(sections.length < 1) sections.push('Main Game');
+		for (extra in extraSections)
+			if(!sections.contains(extra))
+				sections.push(extra);
 		if(curSelected >= sections.length) curSelected = 0;
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuBG'));
@@ -101,8 +106,28 @@ class SectionSelectState extends MusicBeatState
 
 	function acceptSection()
 	{
+		var section:String = sections[curSelected];
+
+		// Don't enter a section that has no weeks yet, that would crash the menus
+		var hasWeeks:Bool = false;
+		for (weekName in WeekData.weeksList)
+		{
+			var week:WeekData = WeekData.weeksLoaded.get(weekName);
+			if(week != null && week.section == section)
+			{
+				hasWeeks = true;
+				break;
+			}
+		}
+		if(!hasWeeks)
+		{
+			FlxG.sound.play(Paths.sound('cancelMenu'));
+			nameTxt.text = section + ' (No weeks yet!)';
+			return;
+		}
+
 		selectedSomethin = true;
-		chosenSection = sections[curSelected];
+		chosenSection = section;
 		FlxG.sound.play(Paths.sound('confirmMenu'));
 		MusicBeatState.switchState(toFreeplay ? new FreeplayState() : new StoryMenuState());
 	}

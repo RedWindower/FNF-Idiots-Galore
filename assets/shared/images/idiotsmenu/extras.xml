@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TextureAtlas imagePath="extras.png">
+<SubTexture name="extrasanim0000" x="402" y="136" width="354" height="120" frameX="0" frameY="0" frameWidth="354" frameHeight="120" />
+<SubTexture name="extrasanim0001" x="402" y="136" width="354" height="120" frameX="0" frameY="0" frameWidth="354" frameHeight="120" />
+<SubTexture name="extrasanim0002" x="402" y="136" width="354" height="120" frameX="0" frameY="0" frameWidth="354" frameHeight="120" />
+<SubTexture name="extrasanim0003" x="0" y="272" width="354" height="120" frameX="0" frameY="0" frameWidth="354" frameHeight="120" />
+<SubTexture name="extrasanim0004" x="0" y="272" width="354" height="120" frameX="0" frameY="0" frameWidth="354" frameHeight="120" />
+<SubTexture name="extrasanim0005" x="0" y="272" width="354" height="120" frameX="0" frameY="0" frameWidth="354" frameHeight="120" />
+<SubTexture name="extrasanim0006" x="354" y="272" width="354" height="120" frameX="0" frameY="0" frameWidth="354" frameHeight="120" />
+<SubTexture name="extrasanim0007" x="354" y="272" width="354" height="120" frameX="0" frameY="0" frameWidth="354" frameHeight="120" />
+<SubTexture name="extrasanim0008" x="354" y="272" width="354" height="120" frameX="0" frameY="0" frameWidth="354" frameHeight="120" />
+<SubTexture name="extrasselect0000" x="0" y="0" width="402" height="136" frameX="0" frameY="0" frameWidth="402" frameHeight="136" />
+<SubTexture name="extrasselect0001" x="0" y="136" width="402" height="136" frameX="0" frameY="0" frameWidth="402" frameHeight="136" />
+<SubTexture name="extrasselect0002" x="402" y="0" width="402" height="136" frameX="0" frameY="0" frameWidth="402" frameHeight="136" />
+</TextureAtlas>

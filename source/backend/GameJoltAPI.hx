@@ -25,8 +25,10 @@ class GameJoltAPI
 
 	// Achievement name -> GameJolt Trophy ID
 	public static var trophyMap:Map<String, Int> = [
-		// 'friday_night_play' => 123456,
-		// 'week1_nomiss' => 123457,
+		'scenery' => 317682,
+		'ragebait' => 317683,
+		'chromtest' => 317684,
+		'404' => 317685
 	];
 
 	public static var loggedIn:Bool = false;

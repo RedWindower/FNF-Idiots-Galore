@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Create gallery folder",
+			"type": "shell",
+			"command": "cmd",
+			"args": [
+				"/c",
+				"mkdir",
+				"assets\\shared\\images\\gallery"
+			],
+			"isBackground": false
+		}
+	]
+}

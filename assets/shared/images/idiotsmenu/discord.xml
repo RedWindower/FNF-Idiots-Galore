@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TextureAtlas imagePath="discord.png">
+<SubTexture name="discordanim0000" x="576" y="149" width="483" height="125" frameX="0" frameY="0" frameWidth="483" frameHeight="126" />
+<SubTexture name="discordanim0001" x="576" y="149" width="483" height="125" frameX="0" frameY="0" frameWidth="483" frameHeight="126" />
+<SubTexture name="discordanim0002" x="576" y="149" width="483" height="125" frameX="0" frameY="0" frameWidth="483" frameHeight="126" />
+<SubTexture name="discordanim0003" x="0" y="297" width="483" height="125" frameX="0" frameY="0" frameWidth="483" frameHeight="126" />
+<SubTexture name="discordanim0004" x="0" y="297" width="483" height="125" frameX="0" frameY="0" frameWidth="483" frameHeight="126" />
+<SubTexture name="discordanim0005" x="0" y="297" width="483" height="125" frameX="0" frameY="0" frameWidth="483" frameHeight="126" />
+<SubTexture name="discordanim0006" x="483" y="297" width="483" height="125" frameX="0" frameY="0" frameWidth="483" frameHeight="126" />
+<SubTexture name="discordanim0007" x="483" y="297" width="483" height="125" frameX="0" frameY="0" frameWidth="483" frameHeight="126" />
+<SubTexture name="discordanim0008" x="483" y="297" width="483" height="125" frameX="0" frameY="0" frameWidth="483" frameHeight="126" />
+<SubTexture name="discordselect0000" x="0" y="0" width="575" height="149" frameX="0" frameY="0" frameWidth="576" frameHeight="150" />
+<SubTexture name="discordselect0001" x="575" y="0" width="576" height="149" frameX="0" frameY="-1" frameWidth="576" frameHeight="150" />
+<SubTexture name="discordselect0002" x="0" y="149" width="576" height="148" frameX="0" frameY="-2" frameWidth="576" frameHeight="150" />
+</TextureAtlas>

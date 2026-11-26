@@ -303,15 +303,12 @@ class Updater
 
         trace('Updater: Launching automatic installer...');
 
-        new sys.io.Process('cmd', [
-            '/c',
-            'start',
-            '',
-            '/min',
-            'update.bat'
-        ]);
+new sys.io.Process('cmd', [
+    '/c',
+    'start "" /min "' + batPath + '"'
+]);
 
-        Sys.exit(0);
+Sys.exit(0);
     }
 
     #end

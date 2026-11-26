@@ -25,13 +25,13 @@ class Updater
 	// The zip attached to every GitHub release
 	public static var ASSET_NAME:String = 'FNF-Idiots-Galore-windows.zip';
 	// Must match the tag_name of the release this build came from
-	public static var CURRENT_VERSION:String = '0.0.1';
+	public static var CURRENT_VERSION:String = '0.0.0';
 
 	public static var latestVersion:String = '';
 	public static var downloadUrl:String = null;
 
 	public static function hasRepo():Bool
-		return GITHUB_REPO != 'RedWindower/FNF-Idiots-Galore' && GITHUB_REPO.contains('/');
+    return GITHUB_REPO.length > 0 && GITHUB_REPO.contains('/');
 
 	// callback(outdated, latestVersion) - called from a background thread!
 	public static function checkForUpdates(?callback:Bool->String->Void)

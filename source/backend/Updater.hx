@@ -1,170 +1,327 @@
+
 package backend;
 
 import haxe.Json;
 import haxe.io.BytesInput;
 import haxe.io.Path;
 import haxe.zip.Reader;
+
 #if sys
+import sys.FileSystem;
+import sys.io.File;
 import sys.thread.Thread;
 #end
 
-/**
- * Auto-updater that checks GitHub Releases and installs new versions.
- *
- * SETUP:
- * 1. Set GITHUB_REPO to your repository (ex: 'SomeUser/FNF-Idiots-Galore').
- * 2. Publish your builds as GitHub Releases, attaching a zip named ASSET_NAME
- *    containing the game files (exe + assets, same layout as the game folder).
- * 3. Set the release's tag to the new version and keep CURRENT_VERSION in sync
- *    with the tag of the build you're compiling.
- */
 class Updater
 {
-	// FILL THIS IN! Your GitHub repository ('owner/repo')
-	public static var GITHUB_REPO:String = 'RedWindower/FNF-Idiots-Galore';
-	// The zip attached to every GitHub release
-	public static var ASSET_NAME:String = 'FNF-Idiots-Galore-windows.zip';
-	// Must match the tag_name of the release this build came from
-	public static var CURRENT_VERSION:String = '0.0.0';
+    public static var GITHUB_REPO:String = 'RedWindower/FNF-Idiots-Galore';
+    public static var ASSET_NAME:String = 'FNF-Idiots-Galore-windows.zip';
+    public static var CURRENT_VERSION:String = '0.0.0';
 
-	public static var latestVersion:String = '';
-	public static var downloadUrl:String = null;
+    public static var latestVersion:String = '';
+    public static var downloadUrl:String = null;
 
-	public static function hasRepo():Bool
-    return GITHUB_REPO.length > 0 && GITHUB_REPO.contains('/');
+    public static function hasRepo():Bool
+    {
+        return GITHUB_REPO.length > 0 && GITHUB_REPO.contains('/');
+    }
 
-	// callback(outdated, latestVersion) - called from a background thread!
-	public static function checkForUpdates(?callback:Bool->String->Void)
-	{
-		if(!hasRepo()) return;
-		#if sys
-		Thread.create(function() doCheck(callback));
-		#else
-		doCheck(callback);
-		#end
-	}
+    // Checks GitHub for the latest release.
+    // callback(outdated, latestVersion)
+    public static function checkForUpdates(?callback:Bool->String->Void)
+    {
+        if (!hasRepo())
+        {
+            trace('Updater: Invalid GitHub repository!');
+            return;
+        }
 
-	static function doCheck(?callback:Bool->String->Void)
-	{
-		try
-		{
-			var http:haxe.Http = new haxe.Http('https://api.github.com/repos/' + GITHUB_REPO.replace('https://github.com/', '') + '/releases/latest');
-			http.setHeader('User-Agent', 'FNF-Idiots-Galore-Updater'); //GitHub API requires a User-Agent
-			http.onData = function(data:String)
-			{
-				var json:Dynamic = Json.parse(data);
-				latestVersion = Std.string(json.tag_name).trim();
+        #if sys
+        Thread.create(function()
+        {
+            doCheck(callback);
+        });
+        #else
+        doCheck(callback);
+        #end
+    }
 
-				var assets:Array<Dynamic> = cast json.assets;
-				if(assets != null)
-				{
-					for (asset in assets)
-					{
-						if(asset.name == ASSET_NAME)
-						{
-							downloadUrl = asset.browser_download_url;
-							break;
-						}
-					}
-				}
+    static function doCheck(?callback:Bool->String->Void)
+    {
+        try
+        {
+            var repo = GITHUB_REPO.replace('https://github.com/', '');
 
-				var outdated:Bool = (latestVersion.length > 0 && latestVersion != CURRENT_VERSION);
-				trace('Updater: latest: $latestVersion, current: $CURRENT_VERSION, outdated: $outdated');
-				if(callback != null) callback(outdated, latestVersion);
-			};
-			http.onError = function(error:String) trace('Updater error: $error');
-			http.request(false);
-		}
-		catch(e:Dynamic) trace('Updater exception: $e');
-	}
+            var http = new haxe.Http(
+                'https://api.github.com/repos/' + repo + '/releases/latest'
+            );
 
-	public static function downloadAndInstall(onProgress:Float->Void, onStatus:String->Void, onError:String->Void)
-	{
-		if(downloadUrl == null)
-		{
-			onError('No "$ASSET_NAME" found on the latest release!');
-			return;
-		}
+            http.setHeader('User-Agent', 'FNF-Idiots-Galore-Updater');
 
-		#if sys
-		onStatus('Downloading update...');
-		var request:lime.net.HTTPRequest<lime.utils.Bytes> = new lime.net.HTTPRequest<lime.utils.Bytes>(downloadUrl);
-		request.followRedirects = true;
-		var future = request.load();
-		future.onProgress(function(loaded:Int, total:Int)
-		{
-			if(total > 0) onProgress(loaded / total);
-		});
-		future.onError(function(e:Dynamic) onError('Download failed: $e'));
-		future.onComplete(function(bytes:lime.utils.Bytes)
-		{
-			try
-			{
-				onStatus('Installing update...');
-				installUpdate(bytes);
-			}
-			catch(e:Dynamic) onError('Install failed: $e');
-		});
-		#else
-		onError('Auto-updating is only supported on desktop!');
-		#end
-	}
+            http.onData = function(data:String)
+            {
+                try
+                {
+                    var json:Dynamic = Json.parse(data);
 
-	#if sys
-	static function installUpdate(bytes:haxe.io.Bytes)
-	{
-		var entries = Reader.readZip(new BytesInput(bytes));
-		if(entries == null || entries.length < 1) throw 'Downloaded zip is empty!';
+                    latestVersion = Std.string(json.tag_name).trim();
+                    downloadUrl = null;
 
-		// If everything in the zip sits inside one root folder, strip it
-		var rootDir:String = null;
-		var hasCommonRoot:Bool = true;
-		for (entry in entries)
-		{
-			var slash:Int = entry.fileName.indexOf('/');
-			var root:String = slash < 0 ? '' : entry.fileName.substr(0, slash);
-			if(root.length < 1)
-			{
-				hasCommonRoot = false;
-				break;
-			}
-			if(rootDir == null) rootDir = root;
-			else if(root != rootDir)
-			{
-				hasCommonRoot = false;
-				break;
-			}
-		}
+                    var assets:Array<Dynamic> = cast json.assets;
 
-		var tempDir:String = 'update_temp';
-		if(!FileSystem.exists(tempDir)) FileSystem.createDirectory(tempDir);
+                    if (assets != null)
+                    {
+                        for (asset in assets)
+                        {
+                            if (asset.name == ASSET_NAME)
+                            {
+                                downloadUrl = asset.browser_download_url;
+                                break;
+                            }
+                        }
+                    }
 
-		for (entry in entries)
-		{
-			var name:String = entry.fileName;
-			if(hasCommonRoot) name = name.substr(rootDir.length + 1);
-			if(name == null || name.length < 1 || name.endsWith('/')) continue;
+                    var outdated:Bool =
+                        latestVersion.length > 0 &&
+                        latestVersion != CURRENT_VERSION;
 
-			var path:String = tempDir + '/' + name;
-			var dir:String = Path.directory(path);
-			if(dir.length > 0 && !FileSystem.exists(dir)) FileSystem.createDirectory(dir);
-			File.saveBytes(path, Reader.unzip(entry));
-		}
+                    trace('Updater: Latest: ' + latestVersion);
+                    trace('Updater: Current: ' + CURRENT_VERSION);
+                    trace('Updater: Outdated: ' + outdated);
+                    trace('Updater: Download: ' + downloadUrl);
 
-		// A running exe can't overwrite itself, so a batch script swaps the
-		// files after the game closes, then relaunches it
-		var exeName:String = Path.withoutDirectory(Sys.programPath());
-		var bat:String = '@echo off\r\n'
-			+ 'echo Updating, please wait...\r\n'
-			+ 'timeout /t 3 /nobreak >nul\r\n'
-			+ 'xcopy "%~dp0update_temp\\*" "%~dp0" /s /e /y >nul\r\n'
-			+ 'rmdir /s /q "%~dp0update_temp"\r\n'
-			+ 'start "" "%~dp0$exeName"\r\n'
-			+ 'del "%~f0"\r\n';
-		File.saveContent('update.bat', bat);
+                    if (callback != null)
+                        callback(outdated, latestVersion);
+                }
+                catch (e:Dynamic)
+                {
+                    trace('Updater JSON error: ' + e);
+                }
+            };
 
-		new sys.io.Process('cmd', ['/c', 'start', '/min', '', 'update.bat']);
-		Sys.exit(0);
-	}
-	#end
+            http.onError = function(error:String)
+            {
+                trace('Updater HTTP error: ' + error);
+            };
+
+            http.request(false);
+        }
+        catch (e:Dynamic)
+        {
+            trace('Updater exception: ' + e);
+        }
+    }
+
+    // Downloads and installs the latest release.
+    public static function downloadAndInstall(
+        onProgress:Float->Void,
+        onStatus:String->Void,
+        onError:String->Void
+    )
+    {
+        if (downloadUrl == null || downloadUrl.length == 0)
+        {
+            onError('No "' + ASSET_NAME + '" found on the latest release!');
+            return;
+        }
+
+        #if sys
+        onStatus('Downloading update...');
+
+        var request = new lime.net.HTTPRequest<lime.utils.Bytes>(downloadUrl);
+        request.followRedirects = true;
+
+        var future = request.load();
+
+        future.onProgress(function(loaded:Int, total:Int)
+        {
+            if (total > 0)
+                onProgress(loaded / total);
+        });
+
+        future.onError(function(e:Dynamic)
+        {
+            onError('Download failed: ' + e);
+        });
+
+        future.onComplete(function(bytes:lime.utils.Bytes)
+        {
+            try
+            {
+                onStatus('Preparing update...');
+
+                installUpdate(bytes);
+
+                onStatus('Update prepared! Restarting...');
+            }
+            catch (e:Dynamic)
+            {
+                onError('Installation failed: ' + e);
+            }
+        });
+        #else
+        onError('Auto-updating is only supported on desktop!');
+        #end
+    }
+
+    #if sys
+
+    // Creates directories recursively.
+    static function ensureDirectory(path:String)
+    {
+        if (path == null || path.length == 0 || FileSystem.exists(path))
+            return;
+
+        var parent = Path.directory(path);
+
+        if (parent != path && parent.length > 0 && !FileSystem.exists(parent))
+            ensureDirectory(parent);
+
+        if (!FileSystem.exists(path))
+            FileSystem.createDirectory(path);
+    }
+
+    // Prevents ZIP entries from escaping the game directory.
+    static function safeZipPath(name:String):String
+    {
+        name = name.replace('\\', '/');
+
+        if (name.startsWith('/') || name.indexOf(':') >= 0)
+            throw 'Unsafe ZIP path: ' + name;
+
+        for (part in name.split('/'))
+        {
+            if (part == '..')
+                throw 'Unsafe ZIP path: ' + name;
+        }
+
+        return name;
+    }
+
+    static function installUpdate(bytes:lime.utils.Bytes)
+    {
+        var zipBytes = haxe.io.Bytes.ofData(bytes);
+        var entries = Reader.readZip(new BytesInput(zipBytes));
+
+        if (entries == null || entries.length < 1)
+            throw 'Downloaded ZIP is empty!';
+
+        var baseDir = Path.directory(Sys.programPath());
+
+        if (baseDir == null || baseDir.length == 0)
+            baseDir = Sys.getCwd();
+
+        var rootDir:String = null;
+        var hasCommonRoot = true;
+
+        // Detect whether the ZIP has a single enclosing folder.
+        for (entry in entries)
+        {
+            var name = safeZipPath(entry.fileName);
+
+            if (name.length == 0)
+                continue;
+
+            var slash = name.indexOf('/');
+            var root = slash < 0 ? '' : name.substr(0, slash);
+
+            if (root.length == 0)
+            {
+                hasCommonRoot = false;
+                break;
+            }
+
+            if (rootDir == null)
+                rootDir = root;
+            else if (root != rootDir)
+            {
+                hasCommonRoot = false;
+                break;
+            }
+        }
+
+        if (rootDir == null)
+            hasCommonRoot = false;
+
+        var tempDir = Path.join([baseDir, 'update_temp']);
+
+        if (FileSystem.exists(tempDir))
+            FileSystem.deleteDirectory(tempDir);
+
+        ensureDirectory(tempDir);
+
+        // Extract the update.
+        for (entry in entries)
+        {
+            var name = safeZipPath(entry.fileName);
+
+            if (hasCommonRoot)
+            {
+                if (name == rootDir)
+                    continue;
+
+                if (name.startsWith(rootDir + '/'))
+                    name = name.substr(rootDir.length + 1);
+            }
+
+            if (name.length == 0 || name.endsWith('/'))
+                continue;
+
+            var path = Path.join([tempDir, name]);
+            var directory = Path.directory(path);
+
+            ensureDirectory(directory);
+
+            File.saveBytes(path, Reader.unzip(entry));
+        }
+
+        // Find the running executable.
+        var exeName = Path.withoutDirectory(Sys.programPath());
+
+        if (exeName == null || exeName.length == 0)
+            throw 'Could not determine game executable name!';
+
+        // Create an installer that runs after the game closes.
+        var batPath = Path.join([baseDir, 'update.bat']);
+
+        var bat = '@echo off\r\n'
+            + 'title FNF Idiots Galore Updater\r\n'
+            + 'cd /d "%~dp0"\r\n'
+            + 'echo Updating FNF Idiots Galore...\r\n'
+            + ':WAIT\r\n'
+            + 'tasklist /FI "IMAGENAME eq ' + exeName + '" 2>NUL | find /I "' + exeName + '" >NUL\r\n'
+            + 'if not errorlevel 1 (\r\n'
+            + '    timeout /t 1 /nobreak >nul\r\n'
+            + '    goto WAIT\r\n'
+            + ')\r\n'
+            + 'echo Installing update...\r\n'
+            + 'xcopy "%~dp0update_temp\\*" "%~dp0" /s /e /y /i >nul\r\n'
+            + 'if errorlevel 1 goto ERROR\r\n'
+            + 'rmdir /s /q "%~dp0update_temp"\r\n'
+            + 'echo Update complete!\r\n'
+            + 'start "" "%~dp0' + exeName + '"\r\n'
+            + 'del "%~f0"\r\n'
+            + 'exit /b\r\n'
+            + ':ERROR\r\n'
+            + 'echo Update failed! Your downloaded files are still in update_temp.\r\n'
+            + 'pause\r\n';
+
+        File.saveContent(batPath, bat);
+
+        trace('Updater: Launching automatic installer...');
+
+        // Launch the installer in a separate Windows process.
+        new sys.io.Process('cmd', [
+            '/c',
+            'start',
+            '',
+            '/min',
+            'update.bat'
+        ]);
+
+        // Close the game so its files can be replaced.
+        Sys.exit(0);
+    }
+
+    #end
 }

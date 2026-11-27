@@ -1,4 +1,3 @@
-
 package backend;
 
 import haxe.Json;
@@ -16,7 +15,7 @@ class Updater
 {
     public static var GITHUB_REPO:String = 'RedWindower/FNF-Idiots-Galore';
     public static var ASSET_NAME:String = 'FNF-Idiots-Galore-windows.zip';
-    public static var CURRENT_VERSION:String = '0.0.1';
+    public static var CURRENT_VERSION:String = '0.0.3';
 
     public static var latestVersion:String = '';
     public static var downloadUrl:String = null;
@@ -301,7 +300,7 @@ class Updater
 
         File.saveContent(batPath, bat);
 
-        trace('Updater: Launching automatic installer...');
+        trace('Updater: Launching installer...');
 
 new sys.io.Process('cmd', [
     '/c',

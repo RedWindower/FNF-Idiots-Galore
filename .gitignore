@@ -25,3 +25,4 @@ art/build_html.bat
 art/build_html-debug.bat
 art/run game mac.bat
 art/run game.bat
+art/run game html5.bat
